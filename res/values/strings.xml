@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ResilienceReader</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_refresh">Refresh</string>
+    <string name="article_detail_browser_button">View entire article</string>
+    <string name="article_detail_activity">Article detail</string>
+    <string name="settings_activity">Settings</string>
+    <string name="articles_text">Articles</string>
+    <string name="resources_text">Resources</string>
+    
+
+</resources>
