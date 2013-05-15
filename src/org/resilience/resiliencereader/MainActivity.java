@@ -46,8 +46,7 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
 
       setContentView(R.layout.activity_main);
 
-      CreateTabs();
-
+      int position = 0;
       if (savedInstanceState != null)
       {
          FeedType feedType = FeedType.fromInt(savedInstanceState.getInt(FEED_KEY));
@@ -57,7 +56,7 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
          resourceList = savedInstanceState.getParcelable(RESOURCES_KEY);
 
          ArticleList currentList;
-         int position;
+
          // TODO: Open-closed principle?
          switch (feedType)
          {
@@ -71,10 +70,12 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
                break;
          }
          showArticleList(currentList);
-
-         // ActionBar actionBar = getSupportActionBar();
-         // actionBar.setSelectedNavigationItem(position);
       }
+
+      CreateTabs();
+
+      ActionBar actionBar = getSupportActionBar();
+      actionBar.setSelectedNavigationItem(position);
    }
 
    @Override
