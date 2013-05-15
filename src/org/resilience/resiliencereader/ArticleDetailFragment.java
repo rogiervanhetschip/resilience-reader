@@ -36,8 +36,8 @@ public class ArticleDetailFragment extends SherlockFragment implements OnClickLi
 		button.setOnClickListener(this);
 		
 	    if(savedInstanceState != null) {
-  			if(savedInstanceState.containsKey(FeedFragment.ARTICLE_KEY)) {
-  				Article article = savedInstanceState.getParcelable(FeedFragment.ARTICLE_KEY);
+  			if(savedInstanceState.containsKey(MainActivity.ARTICLE_KEY)) {
+  				Article article = savedInstanceState.getParcelable(MainActivity.ARTICLE_KEY);
   				setArticle(article);
   			}
   		}
@@ -46,7 +46,7 @@ public class ArticleDetailFragment extends SherlockFragment implements OnClickLi
 	@Override
 	public void onSaveInstanceState (Bundle outState) {
 		if(article != null) {
-			outState.putParcelable(FeedFragment.ARTICLE_KEY, article);
+			outState.putParcelable(MainActivity.ARTICLE_KEY, article);
 		}
 	}
 	

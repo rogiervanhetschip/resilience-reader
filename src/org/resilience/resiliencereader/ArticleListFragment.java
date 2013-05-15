@@ -2,15 +2,12 @@ package org.resilience.resiliencereader;
 
 import org.resilience.resiliencereader.entities.Article;
 import org.resilience.resiliencereader.entities.ArticleList;
-import org.resilience.resiliencereader.framework.TwoLineAdapter;
+import org.resilience.resiliencereader.framework.ThreeLineAdapter;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +37,7 @@ public class ArticleListFragment extends SherlockFragment implements OnItemClick
 	private void showArticles() {
 		ListView listview = (ListView) getView().findViewById(
 				R.id.article_list_view);
-		TwoLineAdapter adapter = new TwoLineAdapter(articleList);
+		ThreeLineAdapter adapter = new ThreeLineAdapter(articleList);
 		listview.setAdapter(adapter);
 	}
 	
@@ -48,15 +45,12 @@ public class ArticleListFragment extends SherlockFragment implements OnItemClick
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		
-		FragmentManager fm = ((FragmentActivity)activity).getSupportFragmentManager();
-		Fragment feedFragment = fm.findFragmentByTag(FeedFragment.FEED_FRAGMENT_TAG);
-		
 		// This makes sure that the container fragment has implemented
 		// the callback interface. If not, it throws an exception.
 		try {
-			listItemClickCallback = (OnArticleSelectedListener) feedFragment;
+			listItemClickCallback = (OnArticleSelectedListener) activity;
 		} catch (ClassCastException e) {
-			throw new ClassCastException(feedFragment.toString()
+			throw new ClassCastException(activity.toString()
 					+ " must implement OnArticleSelectedListener");
 		}
 	}

@@ -20,7 +20,7 @@ public class ArticleDetailActivity extends SherlockFragmentActivity implements O
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
 		Intent intent = getIntent();
-		setArticle((Article) intent.getParcelableExtra(FeedFragment.ARTICLE_KEY));
+		setArticle((Article) intent.getParcelableExtra(MainActivity.ARTICLE_KEY));
 	}
 	
 	// TODO: Bij roteren, naar andere activity switchen
