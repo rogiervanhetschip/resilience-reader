@@ -145,7 +145,6 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
    {
       setFeed(feedType);
       ArticleList currentList = getCurrentList();
-      // TODO Bug: Deze methode wordt bereikt voor onCreate, waardoor currentList altijd null is.
       if (currentList == null)
       {
          loadFeed();
