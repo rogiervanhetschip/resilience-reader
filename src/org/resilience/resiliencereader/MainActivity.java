@@ -10,10 +10,10 @@ import org.resilience.resiliencereader.framework.FeedDownloader;
 import org.resilience.resiliencereader.framework.OnFeedDownloaderDoneListener;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -27,8 +27,8 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
 {
 
    public final static String PREFERENCES_FILENAME = "preferences.xml";
-   public final static String PREFERRED_ARTICLE_FEED = "PreferredArticleFeed";
-   public final static String PREFERRED_RESOURCE_FEED = "PreferredResourceFeed";
+   public final static String PREFERRED_ARTICLE_FEED = "articles_feed_preference";
+   public final static String PREFERRED_RESOURCE_FEED = "resources_feed_preference";
    public final static String ARTICLES_KEY = "articles";
    public final static String RESOURCES_KEY = "resources";
    public final static String ARTICLE_KEY = "article";
@@ -182,14 +182,13 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
    private String getFeedUrl(FeedType feedType)
    {
       Feeds feeds = new Feeds();
-      SharedPreferences prefs = getApplicationContext()
-            .getSharedPreferences(PREFERENCES_FILENAME, Context.MODE_PRIVATE);
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
       if (feedType == FeedType.Articles)
       {
-         ArticlesFeed feed = ArticlesFeed.fromInt(prefs.getInt(PREFERRED_ARTICLE_FEED, 0));
+         ArticlesFeed feed = ArticlesFeed.valueOf(prefs.getString(PREFERRED_ARTICLE_FEED, "Full"));
          return feeds.getFeed(feed);
       }
-      ResourcesFeed feed = ResourcesFeed.fromInt(prefs.getInt(PREFERRED_RESOURCE_FEED, 0));
+      ResourcesFeed feed = ResourcesFeed.valueOf(prefs.getString(PREFERRED_RESOURCE_FEED, "Full"));
       return feeds.getFeed(feed);
    }
 

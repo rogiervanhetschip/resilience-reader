@@ -13,39 +13,5 @@
     <string name="no_internet_text">Could not connect to Resilience.org. Is your device connected to the internet?</string>
     <string name="ok">OK</string>
     <string name="connection_settings">Connection settings</string>
-    <string name="title_articles_feed_preference">Articles feed</string>
-    <string name="summary_articles_feed_preference">Which articles are you interested in</string>
-    <string name="dialog_title_articles_feed_preference">Articles feed</string>
-    <string name="title_resources_feed_preference">Resources feed</string>
-    <string name="summary_resources_feed_preference">Which resources are you interested in</string>
-    <string name="dialog_title_resources_feed_preference">Resources feed</string>
-    <string-array name="entries_articles_feed_preference">
-        <item >Full</item>
-        <item >Energy</item>
-        <item >Environment</item>
-        <item >Food and water</item>
-        <item >Society</item>
-    </string-array>
-        <string-array name="entryvalues_articles_feed_preference">
-        <item >full</item>
-        <item >energy</item>
-        <item >environment</item>
-        <item >foodandwater</item>
-        <item >society</item>
-    </string-array>
-    <string-array name="entries_resources_feed_preference">
-        <item >Full</item>
-        <item >Energy</item>
-        <item >Environment</item>
-        <item >Food and water</item>
-        <item >Society</item>
-    </string-array>
-        <string-array name="entryvalues_resources_feed_preference">
-        <item >full</item>
-        <item >energy</item>
-        <item >environment</item>
-        <item >foodwater</item>
-        <item >society</item>
-    </string-array>
 
 </resources>
