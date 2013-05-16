@@ -8,10 +8,11 @@ public class SecondLineBuilderParam
    private ThreeLineListItem item;
    private String guid;
 
-   public SecondLineBuilderParam(TextView textview, ThreeLineListItem item)
+   public SecondLineBuilderParam(TextView textview, ThreeLineListItem item, String guid)
    {
       this.textview = textview;
       this.item = item;
+      this.guid = guid;
    }
 
    public TextView getTextview()

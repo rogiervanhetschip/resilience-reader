@@ -70,10 +70,10 @@ public class ThreeLineAdapter extends BaseAdapter
       if (secondLine == null)
       {
          SecondLineBuilder builder = new SecondLineBuilder();
-         SecondLineBuilderParam param = new SecondLineBuilderParam(textView2, item);
+         SecondLineBuilderParam param = new SecondLineBuilderParam(textView2, item, item.getGuid());
          builder.execute(param);
          // Leave some vertical space
-         textView2.setText("\n\n");
+         textView2.setText("\n");
       }
       else
       {
