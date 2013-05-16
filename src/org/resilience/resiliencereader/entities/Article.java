@@ -73,11 +73,6 @@ public class Article implements ThreeLineListItem, Parcelable
       return description;
    }
 
-   public String getStrippedDescription()
-   {
-      return getStrippedDescription(true);
-   }
-
    public String getStrippedDescription(boolean load)
    {
       if (strippedDescription == null && load)
@@ -138,7 +133,7 @@ public class Article implements ThreeLineListItem, Parcelable
    @Override
    public String getSecondLine(boolean load)
    {
-      return getStrippedDescription();
+      return getStrippedDescription(load);
    }
 
    @Override
