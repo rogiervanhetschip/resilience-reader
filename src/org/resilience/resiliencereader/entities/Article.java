@@ -135,7 +135,7 @@ public class Article implements ThreeLineListItem, Parcelable
    @Override
    public String getSecondLine(boolean forceLoad)
    {
-      return getStrippedDescription(load);
+      return getStrippedDescription(forceLoad);
    }
 
    @Override
@@ -165,7 +165,22 @@ public class Article implements ThreeLineListItem, Parcelable
    @Override
    public Uri getImageUri()
    {
-      return null;
+      String description = getDescription();
+      int indexStart = description.indexOf("<img");
+      if (indexStart == -1)
+      {
+         return null;
+      }
+      int indexEnd = description.indexOf("</img");
+      if (indexEnd == -1)
+      {
+         return null;
+      }
+      String imgTag = description.substring(indexStart, indexEnd);
+      int srcStart = imgTag.indexOf("src=\"");
+      int srcEnd = imgTag.substring(srcStart).indexOf("\"");
+      String uriText = imgTag.substring(srcStart, srcEnd);
+      return Uri.parse(uriText);
    }
 
    @Override

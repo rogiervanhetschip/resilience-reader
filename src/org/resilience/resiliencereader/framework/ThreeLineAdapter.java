@@ -8,7 +8,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ThreeLineAdapter extends BaseAdapter
@@ -81,15 +83,15 @@ public class ThreeLineAdapter extends BaseAdapter
       TextView textView3 = (TextView) view.findViewById(R.id.listItemThirdLine);
       textView3.setText(item.getThirdLine());
 
-      // ImageView image = (ImageView) view.findViewById(R.id.listItemImage);
+      ImageView image = (ImageView) view.findViewById(R.id.listItemImage);
       // image.setTag(item.getGuid());
-      // LayoutParams params = image.getLayoutParams();
-      // if (params.width != params.height)
-      // {
-      // params.width = params.height;
-      // image.setLayoutParams(params);
-      // }
-      // image.setImageURI(uri)
+      LayoutParams params = image.getLayoutParams();
+      if (params.width != params.height)
+      {
+         params.width = params.height;
+         image.setLayoutParams(params);
+      }
+      image.setImageURI(item.getImageUri());
 
       return view;
    }
