@@ -1,7 +1,6 @@
 package org.resilience.resiliencereader.framework;
 
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 
 public interface ThreeLineListItem
 {
@@ -21,7 +20,9 @@ public interface ThreeLineListItem
 
    public Drawable getDrawable(boolean forceLoad);
 
-   public Uri getImageUri();
+   public Drawable getImage();
+
+   public Drawable getImage(boolean forceLoad);
 
    public long getId();
 

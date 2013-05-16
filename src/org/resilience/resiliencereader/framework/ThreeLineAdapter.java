@@ -5,10 +5,10 @@ import java.util.AbstractList;
 import org.resilience.resiliencereader.R;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -83,15 +83,21 @@ public class ThreeLineAdapter extends BaseAdapter
       TextView textView3 = (TextView) view.findViewById(R.id.listItemThirdLine);
       textView3.setText(item.getThirdLine());
 
-      ImageView image = (ImageView) view.findViewById(R.id.listItemImage);
-      // image.setTag(item.getGuid());
-      LayoutParams params = image.getLayoutParams();
-      if (params.width != params.height)
+      ImageView imageView = (ImageView) view.findViewById(R.id.listItemImage);
+      imageView.setTag(item.getGuid());
+      Drawable drawable = item.getImage(false);
+      if (drawable == null)
       {
-         params.width = params.height;
-         image.setLayoutParams(params);
+         ListItemImageBuilder builder = new ListItemImageBuilder();
+         ListItemImageBuilderParam param = new ListItemImageBuilderParam(imageView, item, item.getGuid());
+         builder.execute(param);
+         // Clear image for now
+         imageView.setImageResource(android.R.color.transparent);
       }
-      image.setImageURI(item.getImageUri());
+      else
+      {
+         imageView.setImageDrawable(drawable);
+      }
 
       return view;
    }
