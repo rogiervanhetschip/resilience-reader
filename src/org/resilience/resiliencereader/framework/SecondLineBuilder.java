@@ -2,13 +2,14 @@ package org.resilience.resiliencereader.framework;
 
 import android.os.AsyncTask;
 
-public class SecondLineBuilder extends AsyncTask<SecondLineBuilderParam, Void, Void>
+public class SecondLineBuilder extends AsyncTask<SecondLineBuilderParam, Void, String>
 {
+   private SecondLineBuilderParam param;
 
    @Override
-   protected Void doInBackground(SecondLineBuilderParam... params)
+   protected String doInBackground(SecondLineBuilderParam... params)
    {
-      SecondLineBuilderParam param = params[0];
+      param = params[0];
 
       // Prevent unnecessary calculations: Another ThreeLineListItem might have been loaded into this TextView, as they
       // are recycled in ThreeLineAdapter.getView
@@ -24,8 +25,19 @@ public class SecondLineBuilder extends AsyncTask<SecondLineBuilderParam, Void, V
       // into this TextView, as they are recycled in ThreeLineAdapter.getView
       if (param.getGuid().equals(param.getTextview().getTag()))
       {
-         param.getTextview().setText(secondLine);
+         return secondLine;
       }
       return null;
+   }
+
+   // Setting the text is done on the UI thread: Other threads are not allowed to touch it
+   @Override
+   protected void onPostExecute(String result)
+   {
+      // Result is given, and our textview has not yet been assigned to a different listitem
+      if (result != null && param.getGuid().equals(param.getTextview().getTag()))
+      {
+         param.getTextview().setText(result);
+      }
    }
 }
