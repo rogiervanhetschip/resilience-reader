@@ -11,6 +11,8 @@ import org.resilience.resiliencereader.framework.ThreeLineListItem;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.format.DateFormat;
@@ -124,7 +126,7 @@ public class Article implements ThreeLineListItem, Parcelable
    }
 
    @Override
-   public String getFirstLine(boolean load)
+   public String getFirstLine(boolean forceLoad)
    {
       return toString();
    }
@@ -136,7 +138,7 @@ public class Article implements ThreeLineListItem, Parcelable
    }
 
    @Override
-   public String getSecondLine(boolean load)
+   public String getSecondLine(boolean forceLoad)
    {
       return getStrippedDescription();
    }
@@ -148,9 +150,27 @@ public class Article implements ThreeLineListItem, Parcelable
    }
 
    @Override
-   public String getThirdLine(boolean load)
+   public String getThirdLine(boolean forceLoad)
    {
       return DateFormat.format("dd MMMM, kk:mm", pubdate).toString();
+   }
+
+   @Override
+   public Drawable getDrawable()
+   {
+      return getDrawable(true);
+   }
+
+   @Override
+   public Drawable getDrawable(boolean forceLoad)
+   {
+      return null;
+   }
+
+   @Override
+   public Uri getImageUri()
+   {
+      return null;
    }
 
    @Override

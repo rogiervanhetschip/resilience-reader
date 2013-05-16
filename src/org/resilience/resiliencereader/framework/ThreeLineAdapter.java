@@ -81,6 +81,16 @@ public class ThreeLineAdapter extends BaseAdapter
       TextView textView3 = (TextView) view.findViewById(R.id.listItemThirdLine);
       textView3.setText(item.getThirdLine());
 
+      // ImageView image = (ImageView) view.findViewById(R.id.listItemImage);
+      // image.setTag(item.getGuid());
+      // LayoutParams params = image.getLayoutParams();
+      // if (params.width != params.height)
+      // {
+      // params.width = params.height;
+      // image.setLayoutParams(params);
+      // }
+      // image.setImageURI(uri)
+
       return view;
    }
 }
