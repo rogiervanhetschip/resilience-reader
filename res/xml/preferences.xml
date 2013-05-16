@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
-
+    <PreferenceCategory 
+        android:title="@string/preferences_feeds_title"
+        android:key="preferences_feeds_title">
+	    <ListPreference
+	                android:key="articles_feed_preference"
+	                android:title="@string/title_articles_feed_preference"
+	                android:summary="@string/summary_articles_feed_preference"
+	                android:entries="@array/entries_articles_feed_preference"
+	                android:entryValues="@array/entryvalues_articles_feed_preference"
+	                android:dialogTitle="@string/dialog_title_articles_feed_preference"
+	                android:defaultValue="Full" />
+	    
+	    <ListPreference
+	                android:key="resources_feed_preference"
+	                android:title="@string/title_resources_feed_preference"
+	                android:summary="@string/summary_resources_feed_preference"
+	                android:entries="@array/entries_resources_feed_preference"
+	                android:entryValues="@array/entryvalues_resources_feed_preference"
+	                android:dialogTitle="@string/dialog_title_resources_feed_preference"
+	                android:defaultValue="Full" />
+	</PreferenceCategory>
 </PreferenceScreen>
