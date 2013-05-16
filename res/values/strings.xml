@@ -13,5 +13,6 @@
     <string name="no_internet_text">Could not connect to Resilience.org. Is your device connected to the internet?</string>
     <string name="ok">OK</string>
     <string name="connection_settings">Connection settings</string>
+    <string name="listitem_thumbnail">thumbnail</string>
 
 </resources>

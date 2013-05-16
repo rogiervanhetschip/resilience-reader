@@ -1,5 +1,8 @@
 package org.resilience.resiliencereader.entities;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,6 +14,7 @@ import org.resilience.resiliencereader.framework.ThreeLineListItem;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.format.DateFormat;
@@ -62,6 +66,7 @@ public class Article implements ThreeLineListItem, Parcelable
    private Date pubdate;
    private String guid;
    private String link;
+   private Drawable image;
 
    public String getTitle()
    {
@@ -73,9 +78,9 @@ public class Article implements ThreeLineListItem, Parcelable
       return description;
    }
 
-   public String getStrippedDescription(boolean load)
+   public String getStrippedDescription(boolean forceLoad)
    {
-      if (strippedDescription == null && load)
+      if (strippedDescription == null && forceLoad)
       {
          // All complete words up to 100 characters
          String result = getDescription().replaceAll("\\<.*?\\>", "").trim();
@@ -119,7 +124,7 @@ public class Article implements ThreeLineListItem, Parcelable
    }
 
    @Override
-   public String getFirstLine(boolean load)
+   public String getFirstLine(boolean forceLoad)
    {
       return toString();
    }
@@ -131,9 +136,9 @@ public class Article implements ThreeLineListItem, Parcelable
    }
 
    @Override
-   public String getSecondLine(boolean load)
+   public String getSecondLine(boolean forceLoad)
    {
-      return getStrippedDescription(load);
+      return getStrippedDescription(forceLoad);
    }
 
    @Override
@@ -143,9 +148,75 @@ public class Article implements ThreeLineListItem, Parcelable
    }
 
    @Override
-   public String getThirdLine(boolean load)
+   public String getThirdLine(boolean forceLoad)
    {
       return DateFormat.format("dd MMMM, kk:mm", pubdate).toString();
+   }
+
+   @Override
+   public Drawable getDrawable()
+   {
+      return getDrawable(true);
+   }
+
+   @Override
+   public Drawable getDrawable(boolean forceLoad)
+   {
+      return null;
+   }
+
+   private URL getImageURL()
+   {
+      String description = getDescription();
+      int indexStart = description.indexOf("<img");
+      if (indexStart == -1)
+      {
+         return null;
+      }
+      int indexEnd = description.indexOf(">");
+      if (indexEnd == -1)
+      {
+         return null;
+      }
+      String imgTag = description.substring(indexStart, indexEnd);
+      int srcStart = imgTag.indexOf("src=\"") + 5;
+      int srcEnd = imgTag.substring(srcStart).indexOf("\"") + srcStart;
+      String uriText = imgTag.substring(srcStart, srcEnd);
+      try
+      {
+         return new URL(uriText);
+      }
+      catch (MalformedURLException e)
+      {
+         return null;
+      }
+   }
+
+   @Override
+   public Drawable getImage()
+   {
+      return getImage(true);
+   }
+
+   @Override
+   public Drawable getImage(boolean forceLoad)
+   {
+      if (forceLoad && image == null)
+      {
+         URL imageUrl = getImageURL();
+         if (imageUrl != null)
+         {
+            try
+            {
+               image = Drawable.createFromStream(imageUrl.openStream(), "src");
+            }
+            catch (IOException e)
+            {
+               // Do nothing
+            }
+         }
+      }
+      return image;
    }
 
    @Override

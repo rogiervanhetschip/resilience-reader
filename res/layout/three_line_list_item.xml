@@ -1,25 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="match_parent" >
+    
+    <ImageView android:id="@+id/listItemImage"
+       	android:layout_height="96dp"
+       	android:layout_width="96dp"
+       	android:contentDescription="@string/listitem_thumbnail"
+       	android:layout_alignParentLeft="true" />
     
     <TextView
         android:id="@+id/listItemFirstLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse" />
+        android:textAppearance="?android:attr/textAppearanceLargeInverse"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/listItemImage" />
     
     <TextView
         android:id="@+id/listItemSecondLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+        android:textAppearance="?android:attr/textAppearanceMediumInverse"
+        android:layout_below="@id/listItemFirstLine"
+        android:layout_toRightOf="@id/listItemImage" />
     
     <TextView
         android:id="@+id/listItemThirdLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmallInverse" />
-
-</LinearLayout>
+        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+        android:layout_below="@+id/listItemSecondLine"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/listItemImage" />
+    
+</RelativeLayout>

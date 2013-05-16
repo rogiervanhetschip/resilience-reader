@@ -13,7 +13,7 @@ public class SecondLineBuilder extends AsyncTask<SecondLineBuilderParam, Void, S
 
       // Prevent unnecessary calculations: Another ThreeLineListItem might have been loaded into this TextView, as they
       // are recycled in ThreeLineAdapter.getView
-      if (!param.getGuid().equals(param.getTextview().getTag()))
+      if (!param.getGuid().equals(param.getView().getTag()))
       {
          return null;
       }
@@ -23,7 +23,7 @@ public class SecondLineBuilder extends AsyncTask<SecondLineBuilderParam, Void, S
 
       // Prevent printing a secondLine with another ThreeLineListItem: Another ThreeLineListItem might have been loaded
       // into this TextView, as they are recycled in ThreeLineAdapter.getView
-      if (param.getGuid().equals(param.getTextview().getTag()))
+      if (param.getGuid().equals(param.getView().getTag()))
       {
          return secondLine;
       }
@@ -35,9 +35,9 @@ public class SecondLineBuilder extends AsyncTask<SecondLineBuilderParam, Void, S
    protected void onPostExecute(String result)
    {
       // Result is given, and our textview has not yet been assigned to a different listitem
-      if (result != null && param.getGuid().equals(param.getTextview().getTag()))
+      if (result != null && param.getGuid().equals(param.getView().getTag()))
       {
-         param.getTextview().setText(result);
+         param.getView().setText(result);
       }
    }
 }
