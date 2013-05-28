@@ -175,7 +175,7 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
    {
       ProgressDialog progressDialog = getProgressDialog();
       String url = getFeedUrl(feedType);
-      FeedDownloader downloader = new FeedDownloader(progressDialog, this);
+      FeedDownloader downloader = new FeedDownloader(progressDialog, this, getContentResolver(), feedType);
       downloader.execute(url);
    }
 

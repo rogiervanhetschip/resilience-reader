@@ -87,6 +87,7 @@ public class Article implements ThreeLineListItem, Parcelable
          result = StringEscapeUtils.unescapeHtml4(result);
          int lastSpace = result.lastIndexOf(" ", 100);
          strippedDescription = result.substring(0, lastSpace);
+         // TODO: Save this derived value to database
       }
       return strippedDescription;
    }
@@ -209,6 +210,7 @@ public class Article implements ThreeLineListItem, Parcelable
             try
             {
                image = Drawable.createFromStream(imageUrl.openStream(), "src");
+               // TODO: Save this image to disk, save filename to the database
             }
             catch (IOException e)
             {

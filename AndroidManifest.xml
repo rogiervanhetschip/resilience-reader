@@ -40,6 +40,10 @@
             	android:name="android.support.PARENT_ACTIVITY"
             	android:value="org.resilience.resiliencereader.MainActivity" />
         </activity>
+        <provider
+      		android:name="org.resilience.resiliencereader.framework.ArticlesContentProvider"
+      		android:authorities="org.resilience.resiliencereader.provider" >
+   		</provider>
     </application>
 
 </manifest>

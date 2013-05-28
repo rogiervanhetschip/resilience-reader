@@ -12,25 +12,34 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.resilience.resiliencereader.entities.Article;
 import org.resilience.resiliencereader.entities.ArticleList;
+import org.resilience.resiliencereader.entities.FeedType;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 
-// Beetje overbodig, deze class: De gebruiker moet er toch op wachten, waarom ophalen niet op de UI thread doen?
 public class FeedDownloader extends AsyncTask<String, Integer, ArticleList>
 {
 
    private ProgressDialog progressDialog;
    private OnFeedDownloaderDoneListener feedDownloaderCallbackReceiver;
+   private ContentResolver contentResolver;
+   private FeedType feedType;
 
-   public FeedDownloader(ProgressDialog progressDialog, OnFeedDownloaderDoneListener feedDownloaderCallbackReceiver)
+   public FeedDownloader(ProgressDialog progressDialog, OnFeedDownloaderDoneListener feedDownloaderCallbackReceiver,
+         ContentResolver contentResolver, FeedType feedType)
    {
       this.progressDialog = progressDialog;
       this.feedDownloaderCallbackReceiver = feedDownloaderCallbackReceiver;
+      this.contentResolver = contentResolver;
+      this.feedType = feedType;
    }
 
    @Override
@@ -90,6 +99,22 @@ public class FeedDownloader extends AsyncTask<String, Integer, ArticleList>
          Document doc = dBuilder.parse(is);
 
          result = new ArticleList(doc);
+
+         // Clear all existing articles or resources from the database
+         // TODO: Add ArticlesContentProvider.RESOURCES_URI, encapsulate database knowledge from this object
+         long feedint = ArticlesSQLiteOpenHelper.FEED_ARTICLE;
+         if (feedType == FeedType.Resources)
+         {
+            feedint = ArticlesSQLiteOpenHelper.FEED_RESOURCE;
+         }
+         contentResolver.delete(ArticlesContentProvider.ARTICLES_URI, ArticlesSQLiteOpenHelper.COLUMN_FEED + "="
+               + feedint, null);
+
+         for (Article article : result)
+         {
+            ContentValues values = getContentValues(article);
+            contentResolver.insert(ArticlesContentProvider.ARTICLES_URI, values);
+         }
       }
       catch (MalformedURLException ex)
       {
@@ -110,6 +135,35 @@ public class FeedDownloader extends AsyncTask<String, Integer, ArticleList>
       {
          // TODO: XML could not be parsed
          ex.printStackTrace();
+      }
+      return result;
+   }
+
+   // TODO: Put this in a separate class, it is not FeedDownloader's responsibility
+   private ContentValues getContentValues(Article article)
+   {
+      ContentValues result = new ContentValues(7);
+      result.put(ArticlesSQLiteOpenHelper.COLUMN_TITLE, article.getTitle());
+      result.put(ArticlesSQLiteOpenHelper.COLUMN_DESCRIPTION, article.getDescription());
+      result.put(ArticlesSQLiteOpenHelper.COLUMN_STRIPPED_DESCRIPTION, article.getStrippedDescription(false));
+      result.put(ArticlesSQLiteOpenHelper.COLUMN_PUBDATE, article.getPubdate().toString());
+      result.put(ArticlesSQLiteOpenHelper.COLUMN_GUID, article.getGuid());
+      result.put(ArticlesSQLiteOpenHelper.COLUMN_LINK, article.getLink());
+
+      Drawable image = article.getImage(false);
+      if (image != null)
+      {
+         String imageLocation = ""; // TODO
+         result.put(ArticlesSQLiteOpenHelper.COLUMN_IMAGE_LOCATION, imageLocation);
+      }
+
+      if (article.getClass().getName() == "Resource")
+      {
+         result.put(ArticlesSQLiteOpenHelper.COLUMN_FEED, ArticlesSQLiteOpenHelper.FEED_RESOURCE);
+      }
+      else
+      {
+         result.put(ArticlesSQLiteOpenHelper.COLUMN_FEED, ArticlesSQLiteOpenHelper.FEED_ARTICLE);
       }
       return result;
    }
