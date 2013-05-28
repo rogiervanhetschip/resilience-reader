@@ -23,6 +23,7 @@ import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 
 public class FeedDownloader extends AsyncTask<String, Integer, ArticleList>
@@ -100,21 +101,9 @@ public class FeedDownloader extends AsyncTask<String, Integer, ArticleList>
 
          result = new ArticleList(doc);
 
-         // Clear all existing articles or resources from the database
-         // TODO: Add ArticlesContentProvider.RESOURCES_URI, encapsulate database knowledge from this object
-         long feedint = ArticlesSQLiteOpenHelper.FEED_ARTICLE;
-         if (feedType == FeedType.Resources)
-         {
-            feedint = ArticlesSQLiteOpenHelper.FEED_RESOURCE;
-         }
-         contentResolver.delete(ArticlesContentProvider.ARTICLES_URI, ArticlesSQLiteOpenHelper.COLUMN_FEED + "="
-               + feedint, null);
+         clearDb();
 
-         for (Article article : result)
-         {
-            ContentValues values = getContentValues(article);
-            contentResolver.insert(ArticlesContentProvider.ARTICLES_URI, values);
-         }
+         writeArticlesToDb(result, feedType);
       }
       catch (MalformedURLException ex)
       {
@@ -137,6 +126,35 @@ public class FeedDownloader extends AsyncTask<String, Integer, ArticleList>
          ex.printStackTrace();
       }
       return result;
+   }
+
+   private void clearDb()
+   {
+      // Clear all existing articles or resources from the database
+      if (feedType == FeedType.Resources)
+      {
+         contentResolver.delete(ArticlesContentProvider.RESOURCES_URI, null, null);
+      }
+      else
+      {
+         contentResolver.delete(ArticlesContentProvider.ARTICLES_URI, null, null);
+      }
+
+   }
+
+   private void writeArticlesToDb(ArticleList articles, FeedType feedType)
+   {
+      Uri uri = ArticlesContentProvider.ARTICLES_URI;
+      if (feedType == FeedType.Resources)
+      {
+         uri = ArticlesContentProvider.RESOURCES_URI;
+      }
+
+      for (Article article : articles)
+      {
+         ContentValues values = getContentValues(article);
+         contentResolver.insert(uri, values);
+      }
    }
 
    // TODO: Put this in a separate class, it is not FeedDownloader's responsibility
