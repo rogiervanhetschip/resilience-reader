@@ -15,6 +15,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.resilience.resiliencereader.entities.Article;
 import org.resilience.resiliencereader.entities.ArticleList;
 import org.resilience.resiliencereader.entities.FeedType;
+import org.resilience.resiliencereader.entities.OnSaveArticleImageListener;
+import org.resilience.resiliencereader.entities.OnSaveArticleStrippedDescriptionListener;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -99,7 +101,10 @@ public class FeedDownloader extends AsyncTask<String, Integer, ArticleList>
          DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
          Document doc = dBuilder.parse(is);
 
-         result = new ArticleList(doc);
+         OnSaveArticleStrippedDescriptionListener onSaveArticleStrippedDescriptionListener = new ArticleStrippedDescriptionSaver(
+               contentResolver);
+         OnSaveArticleImageListener onSaveArticleImageListener = new ArticleImageSaver(contentResolver);
+         result = new ArticleList(doc, onSaveArticleStrippedDescriptionListener, onSaveArticleImageListener);
 
          clearDb();
 

@@ -14,15 +14,19 @@ public class ArticlesContentProvider extends ContentProvider
    public final static String AUTHORITY = "org.resilience.resiliencereader.provider";
    public final static String ARTICLES_PATH = "articles";
    public final static String RESOURCES_PATH = "resources";
+   public final static String ARTICLE_OR_RESOURCE_PATH = "articleorresource";
    public final static int ARTICLES_CODE = 1;
    public final static int ARTICLE_CODE = 2;
    public final static int RESOURCES_CODE = 3;
    public final static int RESOURCE_CODE = 4;
+   public final static int ARTICLE_OR_RESOURCE_CODE = 5;
 
    public final static Uri ARTICLES_URI = Uri.parse("content://" + ArticlesContentProvider.AUTHORITY + "/"
          + ArticlesContentProvider.ARTICLES_PATH);
    public final static Uri RESOURCES_URI = Uri.parse("content://" + ArticlesContentProvider.AUTHORITY + "/"
          + ArticlesContentProvider.RESOURCES_PATH);
+   public final static Uri ARTICLE_OR_RESOURCE_URI = Uri.parse("content://" + ArticlesContentProvider.AUTHORITY + "/"
+         + ArticlesContentProvider.ARTICLE_OR_RESOURCE_PATH);
 
    private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -34,6 +38,7 @@ public class ArticlesContentProvider extends ContentProvider
       uriMatcher.addURI(AUTHORITY, ARTICLES_PATH + "/#", ARTICLE_CODE);
       uriMatcher.addURI(AUTHORITY, RESOURCES_PATH, RESOURCES_CODE);
       uriMatcher.addURI(AUTHORITY, RESOURCES_PATH + "/#", RESOURCE_CODE);
+      uriMatcher.addURI(AUTHORITY, ARTICLE_OR_RESOURCE_PATH, ARTICLE_OR_RESOURCE_CODE);
    }
 
    @Override
@@ -122,6 +127,7 @@ public class ArticlesContentProvider extends ContentProvider
    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)
    {
       SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+      queryBuilder.setTables(ArticlesSQLiteOpenHelper.TABLE_ARTICLES);
 
       int uriType = uriMatcher.match(uri);
       SQLiteDatabase db = database.getReadableDatabase();
@@ -160,8 +166,21 @@ public class ArticlesContentProvider extends ContentProvider
    }
 
    @Override
-   public int update(Uri uri, ContentValues arg1, String arg2, String[] arg3)
+   public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs)
    {
-      return 0;
+      int uriType = uriMatcher.match(uri);
+      SQLiteDatabase db = database.getWritableDatabase();
+      int count = 0;
+
+      switch (uriType)
+      {
+         case ARTICLE_OR_RESOURCE_CODE:
+            count = db.update(ArticlesSQLiteOpenHelper.TABLE_ARTICLES, values, selection, selectionArgs);
+            break;
+         default:
+            throw new IllegalArgumentException("Unknown URI: " + uri);
+      }
+      getContext().getContentResolver().notifyChange(uri, null);
+      return count;
    }
 }

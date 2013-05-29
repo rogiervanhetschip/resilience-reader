@@ -5,13 +5,21 @@ import org.resilience.resiliencereader.entities.ArticleList;
 import org.resilience.resiliencereader.entities.ArticlesFeed;
 import org.resilience.resiliencereader.entities.FeedType;
 import org.resilience.resiliencereader.entities.Feeds;
+import org.resilience.resiliencereader.entities.OnSaveArticleImageListener;
+import org.resilience.resiliencereader.entities.OnSaveArticleStrippedDescriptionListener;
 import org.resilience.resiliencereader.entities.ResourcesFeed;
+import org.resilience.resiliencereader.framework.ArticleImageSaver;
+import org.resilience.resiliencereader.framework.ArticleStrippedDescriptionSaver;
+import org.resilience.resiliencereader.framework.ArticlesContentProvider;
+import org.resilience.resiliencereader.framework.ArticlesSQLiteOpenHelper;
 import org.resilience.resiliencereader.framework.FeedDownloader;
 import org.resilience.resiliencereader.framework.OnFeedDownloaderDoneListener;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
@@ -21,6 +29,8 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+
+//TODO: When do we want automatic refresh of the feed?
 
 public class MainActivity extends SherlockFragmentActivity implements OnFeedDownloaderDoneListener,
       OnArticleSelectedListener, FeedTabListenerActivity
@@ -36,8 +46,6 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
    public final static String TAB_KEY = "Tab";
 
    private FeedType feedType;
-   private ArticleList articleList;
-   private ArticleList resourceList;
 
    @Override
    protected void onCreate(Bundle savedInstanceState)
@@ -52,24 +60,17 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
          FeedType feedType = FeedType.fromInt(savedInstanceState.getInt(FEED_KEY));
          setFeed(feedType);
 
-         articleList = savedInstanceState.getParcelable(ARTICLES_KEY);
-         resourceList = savedInstanceState.getParcelable(RESOURCES_KEY);
-
-         ArticleList currentList;
-
          // TODO: Open-closed principle?
          switch (feedType)
          {
             case Resources:
-               currentList = resourceList;
                position = 1;
                break;
             default:
-               currentList = articleList;
                position = 0;
                break;
          }
-         showArticleList(currentList);
+         loadFeedFromCache(feedType);
       }
 
       CreateTabs();
@@ -84,16 +85,6 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
       if (feedType != null)
       {
          outState.putInt(FEED_KEY, feedType.ordinal());
-      }
-
-      if (articleList != null)
-      {
-         outState.putParcelable(ARTICLES_KEY, articleList);
-      }
-
-      if (resourceList != null)
-      {
-         outState.putParcelable(RESOURCES_KEY, resourceList);
       }
    }
 
@@ -145,7 +136,7 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
    {
       setFeed(feedType);
       ArticleList currentList = getCurrentList();
-      if (currentList == null)
+      if (currentList == null || currentList.size() <= 0)
       {
          loadFeed();
       }
@@ -158,16 +149,43 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
 
    private ArticleList getCurrentList()
    {
-      ArticleList result;
+      ArticleList result = new ArticleList();
+      Uri uri;
       switch (feedType)
       {
          case Resources:
-            result = resourceList;
+            uri = ArticlesContentProvider.RESOURCES_URI;
             break;
          default:
-            result = articleList;
+            uri = ArticlesContentProvider.ARTICLES_URI;
             break;
       }
+      Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+      OnSaveArticleStrippedDescriptionListener saveArticleStrippedDescriptionListener = new ArticleStrippedDescriptionSaver(
+            getContentResolver());
+      OnSaveArticleImageListener saveArticleImageListener = new ArticleImageSaver(getContentResolver());
+      while (cursor.moveToNext())
+      {
+         result.add(getArticle(cursor, saveArticleStrippedDescriptionListener, saveArticleImageListener));
+      }
+      return result;
+   }
+
+   private Article getArticle(Cursor cursor,
+         OnSaveArticleStrippedDescriptionListener onSaveArticleStrippedDescriptionListener,
+         OnSaveArticleImageListener onSaveArticleImageListener)
+   {
+      String title = cursor.getString(cursor.getColumnIndexOrThrow(ArticlesSQLiteOpenHelper.COLUMN_TITLE));
+      String description = cursor.getString(cursor.getColumnIndexOrThrow(ArticlesSQLiteOpenHelper.COLUMN_DESCRIPTION));
+      String strippedDescription = cursor.getString(cursor
+            .getColumnIndexOrThrow(ArticlesSQLiteOpenHelper.COLUMN_STRIPPED_DESCRIPTION));
+      String pubdate = cursor.getString(cursor.getColumnIndexOrThrow(ArticlesSQLiteOpenHelper.COLUMN_PUBDATE));
+      String guid = cursor.getString(cursor.getColumnIndexOrThrow(ArticlesSQLiteOpenHelper.COLUMN_GUID));
+      String link = cursor.getString(cursor.getColumnIndexOrThrow(ArticlesSQLiteOpenHelper.COLUMN_LINK));
+      String imageLocation = cursor.getString(cursor
+            .getColumnIndexOrThrow(ArticlesSQLiteOpenHelper.COLUMN_IMAGE_LOCATION));
+      Article result = new Article(title, description, strippedDescription, pubdate, guid, link, imageLocation,
+            onSaveArticleStrippedDescriptionListener, onSaveArticleImageListener);
       return result;
    }
 
@@ -214,23 +232,9 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
       }
       else
       {
-         setArticleList(articleList);
+         showArticleList(articleList);
       }
 
-   }
-
-   private void setArticleList(ArticleList articleList)
-   {
-      switch (feedType)
-      {
-         case Resources:
-            resourceList = articleList;
-            break;
-         default:
-            this.articleList = articleList;
-      }
-
-      showArticleList(articleList);
    }
 
    private void showArticleList(ArticleList articleList)
@@ -251,10 +255,13 @@ public class MainActivity extends SherlockFragmentActivity implements OnFeedDown
    {
       FragmentManager fm = getSupportFragmentManager();
       ArticleListFragment listFragment = (ArticleListFragment) fm.findFragmentById(R.id.article_list);
-      ArticleList currentList = getCurrentList();
-      if (currentList.size() > 0 && listFragment != null)
+      if (listFragment != null)
       {
-         setArticle(currentList.get(0));
+         ArticleList currentList = getCurrentList();
+         if (currentList != null && currentList.size() > 0)
+         {
+            setArticle(currentList.get(0));
+         }
       }
    }
 
