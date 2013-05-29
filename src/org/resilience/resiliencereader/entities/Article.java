@@ -27,7 +27,8 @@ public class Article implements ThreeLineListItem, Parcelable
    private String rssGuidElement = "guid";
    private String rssLinkElement = "link";
 
-   public Article(Element element)
+   public Article(Element element, OnSaveArticleStrippedDescriptionListener onSaveArticleStrippedDescriptionListener,
+         OnSaveArticleImageListener onSaveArticleImageListener)
    {
       title = GetStringFromElement(element, rssTitleElement);
       description = GetStringFromElement(element, rssDescriptionElement);
@@ -46,6 +47,34 @@ public class Article implements ThreeLineListItem, Parcelable
 
       guid = GetStringFromElement(element, rssGuidElement);
       link = GetStringFromElement(element, rssLinkElement);
+      this.onSaveArticleStrippedDescriptionListener = onSaveArticleStrippedDescriptionListener;
+      this.onSaveArticleImageListener = onSaveArticleImageListener;
+   }
+
+   public Article(String title, String description, String strippedDescription, String pubdate, String guid,
+         String link, String imageLocation,
+         OnSaveArticleStrippedDescriptionListener onSaveArticleStrippedDescriptionListener,
+         OnSaveArticleImageListener onSaveArticleImageListener)
+   {
+      super();
+      this.title = title;
+      this.description = description;
+      this.strippedDescription = strippedDescription;
+      try
+      {
+         this.pubdate = parseDate(pubdate);
+      }
+      catch (ParseException e)
+      {
+         // TODO: Datum niet te parsen. Geen probleem, gewoon open laten
+         e.printStackTrace();
+         this.pubdate = new Date();
+      }
+      this.guid = guid;
+      this.link = link;
+      // TODO: Load image from disk, async
+      this.onSaveArticleStrippedDescriptionListener = onSaveArticleStrippedDescriptionListener;
+      this.onSaveArticleImageListener = onSaveArticleImageListener;
    }
 
    private Date parseDate(String pubdateString) throws ParseException
@@ -67,6 +96,8 @@ public class Article implements ThreeLineListItem, Parcelable
    private String guid;
    private String link;
    private Drawable image;
+   private OnSaveArticleStrippedDescriptionListener onSaveArticleStrippedDescriptionListener;
+   private OnSaveArticleImageListener onSaveArticleImageListener;
 
    public String getTitle()
    {
@@ -87,8 +118,17 @@ public class Article implements ThreeLineListItem, Parcelable
          result = StringEscapeUtils.unescapeHtml4(result);
          int lastSpace = result.lastIndexOf(" ", 100);
          strippedDescription = result.substring(0, lastSpace);
+         saveStrippedDescription();
       }
       return strippedDescription;
+   }
+
+   private void saveStrippedDescription()
+   {
+      if (onSaveArticleStrippedDescriptionListener != null)
+      {
+         onSaveArticleStrippedDescriptionListener.onSaveArticleStrippedDescription(guid, strippedDescription);
+      }
    }
 
    public Date getPubdate()
@@ -209,6 +249,7 @@ public class Article implements ThreeLineListItem, Parcelable
             try
             {
                image = Drawable.createFromStream(imageUrl.openStream(), "src");
+               saveImage();
             }
             catch (IOException e)
             {
@@ -217,6 +258,14 @@ public class Article implements ThreeLineListItem, Parcelable
          }
       }
       return image;
+   }
+
+   private void saveImage()
+   {
+      if (onSaveArticleImageListener != null)
+      {
+         onSaveArticleImageListener.onSaveArticleImage(guid, image);
+      }
    }
 
    @Override
